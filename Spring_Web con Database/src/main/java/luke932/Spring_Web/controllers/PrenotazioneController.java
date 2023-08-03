@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import luke932.Spring_Web.entities.Prenotazione;
-import luke932.Spring_Web.payloads.NewPostazioneBody;
+import luke932.Spring_Web.payloads.NewPrenotazionePayload;
 import luke932.Spring_Web.service.PrenotazioneService;
 
 @RestController
@@ -25,10 +26,11 @@ public class PrenotazioneController {
 	PrenotazioneService bookS;
 
 	// #POST salvataggio prenotazione
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public Prenotazione saveBook(@RequestBody NewPostazioneBody body) throws Exception {
-		return bookS.save(body);
+	@PostMapping("")
+	public ResponseEntity<Prenotazione> save(@RequestBody NewPrenotazionePayload body) throws Exception {
+		Prenotazione prenotazione = bookS.save(body);
+		return ResponseEntity.status(HttpStatus.CREATED).body(prenotazione);
+
 	}
 
 	// #GET ritorna lista postazioni

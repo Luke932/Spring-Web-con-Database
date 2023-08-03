@@ -4,27 +4,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
-import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import luke932.Spring_Web.entities.Postazione;
 import luke932.Spring_Web.entities.TipoPostazione;
+import luke932.Spring_Web.payloads.NewPostazionePayload;
+import luke932.Spring_Web.repositories.PostazioneRepository;
 
 @Service
 public class PostazioneService {
 
 	private List<Postazione> postazioni = new ArrayList<>();
 
-	public Postazione save(Postazione pst) {
-		Random rndm = new Random();
-		pst.setId(Math.abs(rndm.nextInt()));
-		this.postazioni.add(pst);
-		return pst;
+	@Autowired
+	PostazioneRepository postazioniRepository;
+
+	public Postazione save(NewPostazionePayload body) throws Exception {
+		boolean disponibilita = body.isDisponibilita();
+		boolean postazioneDisp = postazioniRepository.findByDisponibilita(disponibilita).isPresent();
+		if (postazioneDisp) {
+			throw new Exception("Una postazione con disponibilità " + disponibilita + " è già presente");
+		}
+		Postazione newPostazione = new Postazione(body.getDescrizione(), body.getNumerMaxOccupanti(),
+				body.isDisponibilita(), body.getTipoPostazione(), body.getCitta());
+		return postazioniRepository.save(newPostazione);
 	}
 
 	public List<Postazione> getPositions() {
-		return this.postazioni;
+		return postazioniRepository.findAll();
 	}
 
 	public List<Postazione> findByTipoandCittà(TipoPostazione tipo, String città) {
@@ -37,14 +46,8 @@ public class PostazioneService {
 		return result;
 	}
 
-	public Optional<Postazione> findById(int id) {
-		Postazione u = null;
-
-		for (Postazione postazioneCorrente : postazioni)
-			if (postazioneCorrente.getId() == id)
-				u = postazioneCorrente;
-
-		return Optional.ofNullable(u);
+	public Postazione findById(int id) throws Exception {
+		return postazioniRepository.findById(id).orElseThrow(() -> new Exception("ID postazione non trovato"));
 	}
 
 	public void findByIdAndDelete(int id) {
@@ -64,7 +67,6 @@ public class PostazioneService {
 			if (currentpositions.getId() == id) {
 				found = currentpositions;
 				found.setId(id);
-				found.setCodice(position.getCodice());
 				found.setDescrizione(position.getDescrizione());
 				found.setTipo(position.getTipo());
 				found.setCittà(position.getCittà());

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import luke932.Spring_Web.entities.Utente;
+import luke932.Spring_Web.payloads.NewUtentePayload;
 import luke932.Spring_Web.service.UtenteService;
 
 @RestController
@@ -27,7 +28,7 @@ public class UtenteController {
 	// #POST salvataggio postazioni
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Utente saveUser(@RequestBody Utente body) {
+	public Utente saveUser(@RequestBody NewUtentePayload body) {
 		Utente createUser = userP.save(body);
 		return createUser;
 	}
@@ -39,8 +40,8 @@ public class UtenteController {
 	}
 
 	@GetMapping("/{id_utente}")
-	public Utente findById(@PathVariable int id) throws Exception {
-		return userP.findById(id).orElseThrow(() -> new Exception("ID utente non trovato"));
+	public Utente findById(@PathVariable("id_utente") int id) throws Exception {
+		return userP.findById(id);
 	}
 
 	@PutMapping("/{id_utente}")

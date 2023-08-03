@@ -4,36 +4,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
-import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import luke932.Spring_Web.entities.Utente;
+import luke932.Spring_Web.payloads.NewUtentePayload;
+import luke932.Spring_Web.repositories.UtenteRepository;
 
 @Service
 public class UtenteService {
 
 	private List<Utente> userP = new ArrayList<>();
 
-	public Utente save(Utente user) {
-		Random rndm = new Random();
-		user.setId(Math.abs(rndm.nextInt()));
-		this.userP.add(user);
-		return user;
+	@Autowired
+	UtenteRepository userRepository;
+
+	public Utente save(NewUtentePayload body) {
+		userRepository.findByEmail(body.getEmail());
+		Utente newUser = new Utente(body.getName(), body.getSurname(), body.getEmail());
+		return userRepository.save(newUser);
 	}
 
 	public List<Utente> getUsers() {
-		return this.userP;
+		return userRepository.findAll();
 	}
 
-	public Optional<Utente> findById(int id) {
-		Utente u = null;
-
-		for (Utente utenteCorrente : userP)
-			if (utenteCorrente.getId() == id)
-				u = utenteCorrente;
-
-		return Optional.ofNullable(u);
+	public Utente findById(int id) throws Exception {
+		Optional<Utente> optionalUtente = userRepository.findById(id);
+		if (optionalUtente.isPresent()) {
+			Utente utente = optionalUtente.get();
+			// Log per verificare se l'utente è stato trovato
+			System.out.println("Utente trovato: " + utente);
+			return utente;
+		} else {
+			// Log per verificare se l'utente non è stato trovato
+			System.out.println("Utente non trovato per ID: " + id);
+			throw new Exception("ID utente non trovato");
+		}
 	}
 
 	public void findByIdAndDelete(int id) {

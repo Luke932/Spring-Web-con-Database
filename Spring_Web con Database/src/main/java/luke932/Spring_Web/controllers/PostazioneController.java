@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import luke932.Spring_Web.entities.Postazione;
 import luke932.Spring_Web.entities.TipoPostazione;
+import luke932.Spring_Web.payloads.NewPostazionePayload;
 import luke932.Spring_Web.service.PostazioneService;
 
 @RestController
@@ -29,7 +30,7 @@ public class PostazioneController {
 	// #POST salvataggio postazioni
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Postazione savePst(@RequestBody Postazione body) {
+	public Postazione savePst(@RequestBody NewPostazionePayload body) throws Exception {
 		Postazione createPst = pstS.save(body);
 		return createPst;
 	}
@@ -41,8 +42,8 @@ public class PostazioneController {
 	}
 
 	@GetMapping("/{id_postazione}")
-	public Postazione findById(@PathVariable int id) throws Exception {
-		return pstS.findById(id).orElseThrow(() -> new Exception("ID postazione non trovata"));
+	public Postazione findById(@PathVariable("id_postazione") int id) throws Exception {
+		return pstS.findById(id);
 	}
 
 	@PutMapping("/{id_postazione}")
